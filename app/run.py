@@ -66,6 +66,25 @@ def index():
         }
     ]
     
+    # Second figure
+    df_categories = df.drop(labels=['id','message','original','genre'],axis=1)
+    df_sum_cat = df_categories.sum(axis=0).sort_values(ascending=False)
+    
+    graph_two = []
+    graph_two.append(
+      Bar(
+      x = df_sum_cat.index.tolist(),
+      y = df_sum_cat.tolist(),
+      )
+    )
+    
+    title2_str = 'Distribution of Message Categories'
+    layout_two = dict(title = title2_str,
+                xaxis = dict(title = 'Categories'),
+                yaxis = dict(title = 'nb of occurence'),
+                )
+    graphs.append(dict(data=graph_two, layout=layout_two))
+    
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
