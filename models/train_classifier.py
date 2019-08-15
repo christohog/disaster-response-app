@@ -26,7 +26,7 @@ def load_data(database_filepath):
     # For now, only message is kept for training 
     X = df[['message']]#,'genre']]
     Y = df.drop(labels=['id','message','original','genre'],axis=1)
-    X,Y
+    return X,Y
 
 
 def tokenize(text):
@@ -57,8 +57,8 @@ def build_model():
     ])
     
     parameters = {
-        'features__text_pipeline__tfidf__use_idf': (True, False),
-        'clf_rf__estimator__min_samples_split': [2, 3, 4],
+        #'features__text_pipeline__tfidf__use_idf': (True, False),
+        'clf_rf__estimator__min_samples_split': [3],
     }
 
     cv = GridSearchCV(pipeline, param_grid=parameters)
@@ -79,8 +79,9 @@ def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
-        X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X, Y = load_data(database_filepath)
+
+        X_train, X_test, Y_train, Y_test = train_test_split(X['message'], Y, test_size=0.2)
         
         print('Building model...')
         model = build_model()
@@ -88,11 +89,11 @@ def main():
         print('Training model...')
         model.fit(X_train, Y_train)
         
-        print('Evaluating model...')
-        evaluate_model(model, X_test, Y_test, category_names)
-
         print('Saving model...\n    MODEL: {}'.format(model_filepath))
         save_model(model, model_filepath)
+    
+        print('Evaluating model...')
+        evaluate_model(model, X_test, Y_test, category_names)        
 
         print('Trained model saved!')
 
